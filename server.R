@@ -1,9 +1,10 @@
-
 # This is the server logic for a Shiny web application. look at http://shiny.rstudio.com
 # A Shiny webapp by www.archeomatic.wordpress.com - sylvain.badey@inrap.fr
 
 library(shiny)
-library(classInt)
+library(classInt) # fonction [classInt] pour les méthodes de discrétisation
+library(cartography) # fonction [dicretization] pour les méthodes de discrétisation: ajoute "geom" et "q6"
+library(sp)
 
 shinyServer(function(input, output) {
   
@@ -58,15 +59,21 @@ shinyServer(function(input, output) {
                 "amplitudes egales" = "equal",
                 "ecarts-types" = "sd",
                 "effectifs egaux (quantiles)" = "quantile",
-                "algorithme de Jenks" = "jenks" )
+                "algorithme de Jenks" = "jenks",
+                "progression geometrique (min > 0)" = "geom")
     
     # je sais plus a quoi cette ligne servait
     # k <- seq(min(x), max(x), length.out = input$k + 1)
     
     ## Application de la fonction classIntervals avec la variable, le nombre de classe et la méthode choisies
-    klass <- classIntervals(var.con, k, style = m)
+    # klass <- classIntervals(var.con, k, style = m)
+    # essai avec la fonction [discretization] du package [cartography]
+    # qui ajoute les méthodes "geom" et "q6" a [classInt]
+    ## Attention récupération direct des brks
+    ## je ne suis pas convaincu par le résultat de la méthode "geom": ou j'ai pas compris !!
+    brks <- discretization(v=var.con, nclass=k, method = m)
     ## récupération des bornes sous forme d'un vecteur (une liste sous la forme c(1,2,3))
-    brks <- klass$brks
+    # brks <- klass$brks # enlever le commentaire si utilisation de [classInt] pour définir la méthode de discrétisation
     
     # préparer les paramètres graphiques généraux
     # par (xpd = TRUE) # permet de dessiner au dela des marges
@@ -96,6 +103,11 @@ shinyServer(function(input, output) {
     axis(1, pos = 0, at = round(brks, digits = 1))
     axis(1, pos = 10, at = mean(var.con, na.rm=T))
     
+    
+    
+    
+    # Afficher moyenne, mediane et ecart-type si coché
+    if (input$param) {
     # Tracer la moyenne et la médiane
     abline( v= mean(var.con, na.rm=T), col = "royalblue", lwd = 1.5)
     abline( v= median(var.con, na.rm=T), col = "red", lwd = 1.5)
@@ -103,7 +115,6 @@ shinyServer(function(input, output) {
     # Tracer les écarts-types en positif puis en négatif
     abline( v= seq(mean(var.con, na.rm=T)+sd(var.con, na.rm=T),max(var.con, na.rm=T), along.with = sd(var.con, na.rm=T) ), col = "gold", lty = 2)
     abline( v= seq(mean(var.con, na.rm=T)-sd(var.con, na.rm=T),min(var.con, na.rm=T), along.with = sd(var.con, na.rm=T) ), col = "gold", lty = 2)
-    
     # Afficher une légende
     legend(
       ## position de la légende
@@ -122,10 +133,50 @@ shinyServer(function(input, output) {
       horiz = TRUE,
       ## taille de police
       cex=0.8)
+    } # param
     
+    # Affichage des effectifs si coché
+    # 
+    if (input$lab.eff) {
+      # calcul des effectifs (histogramme "simple) mais non tracé
+      his <- hist(var.con,breaks = brks,plot = FALSE)
+      # soit [mid] le milieu des classes
+      mid <- his$mids
+      # soit [den] la valeur de densité
+      den <- his$density
+      # soit [cnt] lm'effectif par classe
+      cnt <- his$counts
+      # etiquette avec effectifs
+      text(mid, # position x = milieu de classe 
+           den*0.9, # position = à 90% des densités
+           labels = cnt, # etiquettes = effectifs récuopérés de l'histogramme simple
+           col = "white", # couleur = blanc
+           cex = 1.5, # taille = 120% de la taille de base
+           pos = 1) # position de l'étiquette sous le point
+      
+    } # lab.eff
+   
+      
+    # Affichage d'une boîte à moustache si coché
+    # PROBLEME de superposition, il faudrait la mettre juste en dessous ou sans fond
+    
+      if (input$stach) {
+      # Ajouter une Boite à Moustache
+      ## le prochain graph s'ajoutera au suivant
+      par (new = TRUE    )
+      # ajouter une box plot
+      boxplot(var.con, horizontal = TRUE,
+              # sans axes
+              axes = FALSE)
+      # Ajouter la moyenne et la médiane
+      # il faudrait le faire plus joliment en se limitant à la largeur de la boxplot
+      #abline( v= mean(var.con, na.rm = T), col = "royalblue", lwd = 1.5)
+      #abline( v= median(var.con), col = "red", lwd = 1.5)
+    } # stach
+      
     # Affichage d'un scalogramme si coché
     # PROBLEME de superposition, il faudrait le mettre sur l'axe des abcisses
-    if (input$scalo) {
+      if (input$scalo) {
       # ajouter un stripchart
       par(new= TRUE)
       stripchart(var.con, 
@@ -139,23 +190,8 @@ shinyServer(function(input, output) {
                  axes = FALSE)
     } # scalo
     
-    # Affichage d'une boîte à moustache si coché
-    # PROBLEME de superposition, il faudrait la mettre juste en dessous ou sans fond
-    if (input$stach) {
-      # Ajouter une Boite à Moustache
-      ## le prochain graph s'ajoutera au suivant
-      par (new = TRUE    )
-      # ajouter une box plot
-      boxplot(var.con, horizontal = TRUE,
-              # sans axes
-              axes = FALSE)
-      # Ajouter la moyenne et la médiane
-      # il faudrait le faire plus joliment en se limitant à la largeur de la boxplot
-      #abline( v= mean(var.con, na.rm = T), col = "royalblue", lwd = 1.5)
-      #abline( v= median(var.con), col = "red", lwd = 1.5)
-    } # stach
-    
     ### A FAIRE Ajouter la possibilité de télécharger la figure finale !!!
     
   }) # renderPlot 'Distplot'
+  
 }) # shinyserver
