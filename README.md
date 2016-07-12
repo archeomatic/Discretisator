@@ -16,7 +16,6 @@ Les règles de base:
 
 - Les valeurs limites doivent être précises et rapidement appréhendables
 
-- Les valeurs limites doivent être précises et rapidement appréhendables
 
 - Éviter de placer dans deux classes distinctes des valeurs non significativement différentes
 
