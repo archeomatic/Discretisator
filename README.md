@@ -13,7 +13,8 @@ Les règles de base:
 - Les valeurs limites doivent être précises et rapidement appréhendables
 - Éviter de placer dans deux classes distinctes des valeurs non significativement différentes
 - Ne pas définir des seuils avec un nombre de décimales supérieur à celui de la précision des données
--
+
+
 Comment ca marche:
 
 Onglet Import:
