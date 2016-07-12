@@ -36,12 +36,16 @@ shinyUI(navbarPage("Discretisator",
                               p("    - Ne pas définir des seuils avec un nombre de décimales supérieur à celui de la précision des données"),
                               br(),
                               p(strong("Comment ca marche:")),
+                              br(),
                               p("Onglet Import:"),
+                              br(),
                               p("- Charger un fichier .csv contenant une variable continue"),
                               p("- A minima, parametrez les séparateur de colonnes et de décimales"),
                               p("  jusqu'à ce que votre tableau apparaisse"),
                               p("- Choisissez le nom de la variable à étudier dans le menu déroulant"),
+                              br(),
                               p("Onglet Discretisation:"),
+                              br(),
                               p("- Discrétisez !!!")
                               ) # mainPanel
                    ), # tabPanel Introduction
