@@ -32,10 +32,18 @@ shinyUI(navbarPage("Discretisator",
                               p("    - Une valeur ne doit appartenir qu’à une classe et une seule"),
                               p("    - Les classes ne doivent pas être vides"),
                               p("    - Les valeurs limites doivent être précises et rapidement appréhendables"),
-                              p("    - Les valeurs limites doivent être précises et rapidement appréhendables"),
                               p("    - Éviter de placer dans deux classes distinctes des valeurs non significativement différentes"),
-                              p("    - Ne pas définir des seuils avec un nombre de décimales supérieur à celui de la précision des données")
-                            ) # mainPanel
+                              p("    - Ne pas définir des seuils avec un nombre de décimales supérieur à celui de la précision des données"),
+                              br(),
+                              p(strong("Comment ca marche:")),
+                              p("Onglet Import:"),
+                              p("- Charger un fichier .csv contenant une variable continue"),
+                              p("- A minima, parametrez les séparateur de colonnes et de décimales"),
+                              p("  jusqu'à ce que votre tableau apparaisse"),
+                              p("- Choisissez le nom de la variable à étudier dans le menu déroulant"),
+                              p("Onglet Discretisation:"),
+                              p("- Discrétisez !!!")
+                              ) # mainPanel
                    ), # tabPanel Introduction
                    
                    # ONGLET import de données
@@ -95,20 +103,31 @@ shinyUI(navbarPage("Discretisator",
                                   ## étiquette
                                   "méthode de \n discrétisation:",
                                   ## choix du menu déroulant
-                                  c("amplitudes egales", "ecarts-types", "effectifs egaux (quantiles)", "algorithme de Jenks"),
+                                  c("amplitudes egales", "ecarts-types", "effectifs egaux (quantiles)", "algorithme de Jenks", "progression geometrique (min > 0)"),
                                   ## sélection par défaut
                                   selected = "amplitudes egales"),
                                 
+                                # case à cocher pour afficher moyenne, mediane et ecart-type
+                                checkboxInput(
+                                  "param",
+                                  label = strong("Afficher afficher moyenne, mediane et ecart-type"),
+                                  value = FALSE),
+                                # case à cocher pour afficher les effectifs
+                                checkboxInput(
+                                  "lab.eff",
+                                  label = strong("Afficher les effectifs"),
+                                  value = FALSE),
                                 # case à cocher pour afficher un scalogramme
                                 checkboxInput(
                                   "scalo",
-                                  label = strong("Afficher les points"),
+                                  label = strong("Afficher le scalogramme"),
                                   value = FALSE),
                                 # case à cocher pour afficher une boite à moustache
                                 checkboxInput(
                                   "stach",
                                   label = strong("Afficher une boîte à moustache"),
                                   value = FALSE)
+                                
                               ), # sidebarPanel
                               
                               
